@@ -2,17 +2,19 @@ new Vue({
     el: '#app',
     data(){
         return{
-            content: this.content = localStorage.getItem('content') || 'Escreva uma **anotação**',
-            notes: [],
-            selectedId: null
+            notes: JSON.parse(localStorage.getItem('notes')) || [],
+            selectedId: localStorage.getItem('selected-id') || null
         }
     },
     computed:{
         notePreview(){
-            return marked(this.content)
+            return this.selectedNote ? marked(this.selectedNote.content) : ''
         },
         addButtonTitle(){
             return `${this.notes.length} anotação(ões) existente(s)`
+        },
+        selectedNote(){
+            return this.notes.find(note => note.id === this.selectedId)
         }
     },
     methods:{
@@ -22,25 +24,40 @@ new Vue({
             const note = {
                 id: String(time),
                 title: `Nova anotação ${this.notes.length + 1}`,
-                content: '**Hi!** This notebook is using\n [markdown](https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet\n) for formatting!\'',
+                content: '**Olá!** Essa anotação usa [markdown](https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet) na sua formatação!',
                 created: time,
                 favorite: false
             }
 
             this.notes.push(note)
-        },
-        saveNote(){
-            localStorage.setItem('content',this.content)
+
+
         },
         reportOperation(opName){
             console.log('A operação:',opName,' foi concluída com sucesso.')
+        },
+        selectNote(note){
+            this.selectedId = note.id
+        },
+        saveNotes(){
+            localStorage.setItem('notes',JSON.stringify(this.notes))
+        },
+        removeNote(){
+            if(this.selectedNote && confirm('Excluir a anotação?')){
+                const index = this.notes.indexOf(this.selectedNote)
+                if(index !== -1){
+                    this.notes.splice(index,1)
+                }
+            }
         }
     },
     watch:{
-        content: 'saveNote'
-    },
-    created(){
-        // this.content = localStorage.getItem('content') || 'Escreva uma **anotação**'
-        this.notes = JSON.parse(localStorage.getItem('notes'))
+        notes: {
+            handler: 'saveNotes',
+            deep: true
+        },
+        selectedId(val){
+            localStorage.setItem('selected-id', val)
+        }
     }
 })
