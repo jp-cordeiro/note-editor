@@ -1,5 +1,4 @@
-<!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
     <meta charset="UTF-8">
     <title>Bloco de Notas</title>
@@ -8,6 +7,7 @@
     <link rel="stylesheet" href="style.css">
     <script src="https://unpkg.com/vue/dist/vue.js"></script>
     <script src="https://unpkg.com/marked"></script>
+    <script src="https://unpkg.com/moment"></script>
 </head>
 <body>
 <div id="app">
@@ -21,20 +21,47 @@
         </div>
         <div class="notes">
             <div class="note"
-                 v-for="note of notes"
+                 v-for="note of sortedNotes"
                  :class="{selected: note == selectedNote}"
-                 @click="selectNote(note)">{{note.title}}</div>
+                 @click="selectNote(note)">
+                <i class="icon material-icons" v-if="note.favorite">star</i>
+                {{note.title}}</div>
         </div>
     </aside>
+
     <template v-if="selectedNote">
         <section class="main">
             <div class="toolbar">
+                <!--Title note-->
                 <input v-model="selectedNote.title" placeholder="Título da Anotação">
+                <!--Favorite button-->
+                <button @click="favoriteNote" title="Favoritar anotação">
+                    <i class="material-icons">{{selectedNote.favorite ? 'star' : 'star_border'}}</i>
+                </button>
+                <!--Remove button-->
                 <button @click="removeNote" title="Romover anotação">
                     <i class="material-icons">delete</i>
                 </button>
             </div>
             <textarea v-model="selectedNote.content"></textarea>
+            <div class="toolbar status-bar">
+                <span class="date">
+                    <span class="label">Created</span>
+                    <span class="value">{{selectedNote.created | date}}</span>
+                    <span class="lines">
+                        <span class="label">Lines</span>
+                        <span class="value">{{ linesCount }}</span>
+                    </span>
+                    <span class="words">
+                        <span class="label">Words</span>
+                        <span class="value">{{ wordsCount }}</span>
+                    </span>
+                    <span class="characters">
+                        <span class="label">Characters</span>
+                        <span class="value">{{ charactersCount }}</span>
+                    </span>
+                </span>
+            </div>
         </section>
         <aside class="preview" v-html="notePreview"/>
     </template>
