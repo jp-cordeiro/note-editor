@@ -61,9 +61,10 @@ new Vue({
                 created: time,
                 favorite: false
             }
-
+            //Adiciona a anotação
             this.notes.push(note)
-
+            //Seleciona a anotação
+            this.selectNote(note)
 
         },
         reportOperation(opName){
